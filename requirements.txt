@@ -1,2 +1,5 @@
-requests
-psycopg2-binary
+requests==2.32.3
+sqlalchemy==2.0.32
+psycopg2-binary==2.9.9
+pandas==2.2.3
+python-dateutil==2.8.2

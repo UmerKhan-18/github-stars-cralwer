@@ -1,13 +1,12 @@
 name: crawl-stars
 on:
-  workflow_dispatch:        # manually run kar sakte ho
+  workflow_dispatch:
   schedule:
-    - cron: "0 2 * * *"     # har din 2 AM UTC pe auto run hoga
+    - cron: "0 2 * * *" # daily at 02:00 UTC
 
 jobs:
   crawl:
     runs-on: ubuntu-latest
-
     services:
       postgres:
         image: postgres:15
@@ -24,61 +23,63 @@ jobs:
           --health-retries 5
 
     steps:
-      # Step 1: Checkout your repository code
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      # Step 2: Setup Python
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.10"
 
-      # Step 3: Install dependencies
       - name: Install dependencies
         run: |
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # Step 4: Wait for PostgreSQL to be ready
       - name: Wait for Postgres
         run: |
           for i in {1..30}; do
-            pg_isready -h localhost -p 5432 && break
-            echo "Waiting for Postgres..."
-            sleep 2
+            pg_isready -h localhost -p 5432 && break || sleep 2
           done
 
-      # Step 5: Setup Postgres schema
-      - name: Setup Postgres (create tables)
+      - name: Apply DB schema
         env:
           PGHOST: localhost
           PGUSER: postgres
           PGPASSWORD: postgres
           PGDATABASE: crawler
-        run: psql -h localhost -U postgres -d crawler -f src/schema.sql
+        run: psql -h localhost -U postgres -d crawler -f sql/setup.sql
 
-      # Step 6: Run crawler
-      - name: Run crawler script
+      - name: Run crawler (main)
         env:
           PGHOST: localhost
           PGUSER: postgres
           PGPASSWORD: postgres
           PGDATABASE: crawler
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: python crawl_stars.py
+          MAX_REPOS: 1000 # override for demo or set to 100000 for full run
+          PAGE_SIZE: 100
+          OUTPUT_CSV: output/repos_dump.csv
+        run: |
+          python main.py
 
-      # Step 7: Dump database to a file
-      - name: Dump database
+      - name: Dump DB to SQL (artifact)
         env:
           PGHOST: localhost
           PGUSER: postgres
           PGPASSWORD: postgres
           PGDATABASE: crawler
-        run: pg_dump -h localhost -U postgres -d crawler --data-only --column-inserts > dump.sql
+        run: |
+          pg_dump -h localhost -U postgres -d crawler --data-only --column-inserts > dump.sql
 
-      # Step 8: Upload artifact (for download)
-      - name: Upload artifact
+      - name: Upload CSV artifact
         uses: actions/upload-artifact@v4
         with:
-          name: repo-stars-dump
+          name: repos-csv
+          path: output/repos_dump.csv
+
+      - name: Upload SQL dump artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: repos-dump-sql
           path: dump.sql
