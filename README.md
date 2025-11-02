@@ -46,8 +46,10 @@ CREATE TABLE IF NOT EXISTS repos (
 );
 
 CREATE INDEX IF NOT EXISTS idx_repos_last_crawled ON repos(last_crawled);
+```
+---
 
-Why this design:
+### Why this design:
 
 repo_id → unique GitHub identifier (used for upserts)
 
@@ -58,7 +60,7 @@ ON CONFLICT (repo_id) DO UPDATE → ensures efficient updates
 Crawler (crawl_stars.py)
 The crawler connects to GitHub’s GraphQL API using the built-in GitHub Actions token (${{ secrets.GITHUB_TOKEN }}).
 
-Responsibilities
+### Responsibilities
 Fetch repository data using GraphQL
 
 Insert or update rows in PostgreSQL
