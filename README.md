@@ -116,7 +116,7 @@ The entire pipeline runs automatically using the workflow file:
 
 # Future Improvements
 
-1. ``Extend to Pull Requests, Issues & Comments``
+1. Extend to Pull Requests, Issues & Comments
    Add new tables:
    ```sql
    CREATE TABLE pull_requests (pr_id TEXT PRIMARY KEY, repo_id TEXT, metadata JSONB, last_updated TIMESTAMP);
