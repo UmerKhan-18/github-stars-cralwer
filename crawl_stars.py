@@ -9,7 +9,7 @@ GITHUB_API_URL = "https://api.github.com/graphql"
 TOKEN = os.environ.get("GITHUB_TOKEN")
 
 if not TOKEN:
-    print("❌ Error: GITHUB_TOKEN not found.")
+    print("Error: GITHUB_TOKEN not found.")
     exit(1)
 
 HEADERS = {"Authorization": f"Bearer {TOKEN}"}
@@ -39,7 +39,7 @@ query ($cursor: String) {
 def run_query(query, variables=None):
     response = requests.post(GITHUB_API_URL, json={"query": query, "variables": variables}, headers=HEADERS)
     if response.status_code != 200:
-        print(f"❌ Query failed: {response.status_code} - {response.text}")
+        print(f" Query failed: {response.status_code} - {response.text}")
         return None
     return response.json()
 
@@ -89,7 +89,7 @@ def main():
             repo = edge["node"]
             upsert_repo(cur, repo)
             total_fetched += 1
-            print(f"✅ Saved {repo['nameWithOwner']} ({repo['stargazerCount']}⭐)")
+            print(f"Saved {repo['nameWithOwner']} ({repo['stargazerCount']}⭐)")
 
         conn.commit()
 
@@ -104,7 +104,7 @@ def main():
 
     cur.close()
     conn.close()
-    print(f"\n✅ Done! Total {total_fetched} repos saved to database.")
+    print(f"\nDone! Total {total_fetched} repos saved to database.")
 
 if __name__ == "__main__":
     main()
