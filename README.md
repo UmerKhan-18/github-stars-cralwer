@@ -104,8 +104,8 @@ The entire pipeline runs automatically using the workflow file:
 ```pgsql
 .
 ├── crawl_stars.py
-├── sql/
-│ └── setup.sql
+├── src/
+│ └── schema.sql
 ├── .github/
 │ └── workflows/
 │ └── crawl.yml
@@ -126,13 +126,13 @@ The entire pipeline runs automatically using the workflow file:
 
 2. Scale for 500M+ Repositories
 
-- Shared repositories across multiple workers
-- Use message queues (e.g., Kafka) between crawler and database
-- Store cold data in S3/Parquet, hot data in Postgres
-- Rotate tokens for distributed rate-limit management
+  - Shared repositories across multiple workers
+  - Use message queues (e.g., Kafka) between crawler and database
+  - Store cold data in S3/Parquet, hot data in Postgres
+  - Rotate tokens for distributed rate-limit management
 
 3. Monitoring & Reliability
 
-- Add detailed logs & metrics
-- Slack/email notifications for job status
-- Add checkpoints to resume interrupted crawls
+  - Add detailed logs & metrics
+  - Slack/email notifications for job status
+  - Add checkpoints to resume interrupted crawls
